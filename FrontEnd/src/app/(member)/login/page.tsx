@@ -7,6 +7,7 @@
     import { SiKakaotalk } from 'react-icons/si';
     import axios from 'axios';
     import Link from 'next/link'
+    import Head from 'next/head'
 
 
     const Login = () =>{    
@@ -25,6 +26,11 @@
     }
     return (
         <div className="w-screen h-screen flex items-center justify-center bg-[#FAFAFA]">
+            <Head>
+                <title>shareAlbum • Login</title>
+                <meta name="description" content="shareAlbum" />
+                 <link rel="icon" href="/instagram.png" />
+            </Head>
             <div className="flex h-4/5 w-4/5" >
                 {/* 부모 div에 flex설정이 되어 있으면 자식에 w-full를 하면 부모 w를 반반으로 나눠서 갖는다*/}
                 <div className ="w-full h-full">
@@ -58,7 +64,7 @@
                             className="w-full px-2 py-1 transition bg-gray-100 border rounded-sm outline-none hover:bg-transparent focus:bg-transparent placeholder:text-sm focus:border-gray-400"
                             placeholder="Password"/>
                         <button 
-                                className="bg-[#0095F6] py-1 text-white active:scale-95 transform transition w-full disabled:bg-opacity-50 disabled:scale-100 rounded text-sm font-semibold">Login </button>
+                                className="bg-[#0095F6] py-1 text-white active:scale-95 transform transition w-full disabled:bg-opacity-50 disabled:scale-100 rounded-lg text-sm font-semibold">Login </button>
                         </form>
 
                         <div className="flex items-center justify-center w-full px-10 my-1 space-x-2">
