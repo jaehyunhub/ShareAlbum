@@ -1,44 +1,65 @@
 package shareAlbum.shareAlbum.domain.member.entity;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import shareAlbum.shareAlbum.domain.baseEntity.BaseTimeEntity;
 import shareAlbum.shareAlbum.domain.chat.entity.ChatMessage;
-import shareAlbum.shareAlbum.domain.group.entity.Group;
+import shareAlbum.shareAlbum.domain.group.entity.MyGroup;
+
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Member {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
+public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue
     @Column(name = "member_id")
     private Long id; //PK값
+
+    @Column(name="login_id")
+    private String loginId;
+
     private String name; //이름
-    private String nickname; //사용ID
-    private String email; // E-mail
+
+    @Column(unique = true)
+    private String nickname; //사용자 닉네임
     private String password; //비밀번호
+
+    private String email; // E-mail
     private String birthday; //생년월일
+
+    @Column(name="phone_num")
     private String phoneNum; //핸드폰번호
 
+    private byte[] profile; //프로필 사진
+
+    @Enumerated(EnumType.STRING)
+    private MemberStatus memberStatus;//회원탈퇴여부
 
     @OneToMany(mappedBy = "member")
-    private List<Group> groupMember = new ArrayList<>();
+    private List<MyGroup> myGroupMember = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
     private List<ChatMessage> chatMessages = new ArrayList<>();
 
-    public Member(String name, String nickname, String email, String password, String birthday, String phoneNum) {
+
+
+
+
+    @Builder
+    public Member(String loginId, String email, String phoneNum, String name, String nickname, String password, MemberStatus memberStatus) {
+        this.loginId = loginId;
+        this.email = (email != null && !email.isEmpty()) ? email : null;
+        this.phoneNum = (phoneNum != null && !phoneNum.isEmpty()) ? phoneNum : null;
         this.name = name;
         this.nickname = nickname;
-        this.email = email;
         this.password = password;
-        this.birthday = birthday;
-        this.phoneNum = phoneNum;
+        this.memberStatus = memberStatus;
     }
 }

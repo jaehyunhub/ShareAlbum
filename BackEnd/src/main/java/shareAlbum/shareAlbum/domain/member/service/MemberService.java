@@ -1,10 +1,19 @@
 package shareAlbum.shareAlbum.domain.member.service;
 
+import org.springframework.validation.BindingResult;
+import shareAlbum.shareAlbum.domain.member.dto.MemberDto;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public interface MemberService {
 
-    //회원가입시 아이디 중복, 비밀번호 중복, 닉네임 중복체크,email체크
-    //비밀번호 복호화(jwt)
-    //로그인시 이메일 혹은 전화번호로 회원가입 비밀번호체크
+    //이메일,비밀번호 체크
+    HashMap<String,String> vaildateSignUp(BindingResult result, MemberDto memberDto);
 
+    HashMap<String, String> validateEmailAndNickName(String email,String nickname);
+    HashMap<String, String> validatePhoneNumAndNickName(String phoneNum,String nickname);
+    //회원가입
+   void signUp(MemberDto memberDto) throws Exception;
 
 }
