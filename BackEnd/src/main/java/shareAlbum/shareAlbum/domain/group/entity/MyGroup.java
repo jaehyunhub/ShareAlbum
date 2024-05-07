@@ -1,6 +1,7 @@
 package shareAlbum.shareAlbum.domain.group.entity;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shareAlbum.shareAlbum.domain.member.entity.Member;
@@ -15,11 +16,10 @@ import static javax.persistence.FetchType.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Group {
-
+public class MyGroup {
     @Id
     @GeneratedValue
-    @Column(name = "group_id")
+    @Column(name = "myGroup_id")
     private Long id;
 
     @ManyToOne(fetch = LAZY)
@@ -30,9 +30,13 @@ public class Group {
     @JoinColumn(name = "groupList_id")
     private GroupList groupList;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "myGroup")
     private List<Invitation> invitation = new ArrayList<>();
 
     //초대된 날짜정도?
-
+    @Builder
+    public MyGroup(Member member, GroupList groupList) {
+        this.member = member;
+        this.groupList = groupList;
+    }
 }

@@ -22,7 +22,7 @@ public class Invitation {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "group_id")
-    private Group group;
+    private MyGroup myGroup;
 
     @Enumerated(EnumType.STRING)
     private InvitationStatus invitation_status;
