@@ -11,7 +11,7 @@ import static javax.persistence.FetchType.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Like {
+public class MyLike {
 
     @Id
     @GeneratedValue
