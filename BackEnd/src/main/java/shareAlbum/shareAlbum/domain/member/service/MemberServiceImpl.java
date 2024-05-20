@@ -6,14 +6,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import shareAlbum.shareAlbum.domain.member.dto.MemberDto;
+import shareAlbum.shareAlbum.domain.member.dto.MemberLoginDto;
+import shareAlbum.shareAlbum.domain.member.query.mainPage.MemberInfoDto;
 import shareAlbum.shareAlbum.domain.member.entity.Member;
 import shareAlbum.shareAlbum.domain.member.entity.MemberStatus;
 import shareAlbum.shareAlbum.domain.member.repository.MemberRepository;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -41,6 +43,7 @@ public class MemberServiceImpl implements MemberService {
             memberDto.checkEmailOrPhone(memberDto.getLoginId());
             String phoneNum = memberDto.getPhoneNum();
             String nickname = memberDto.getNickname();
+            System.out.println("memberDto = " + memberDto);
 
             if (phoneNum != null) {
                 HashMap<String, String> phoneAndNicknameCheck = validatePhoneNumAndNickName(phoneNum, nickname);
@@ -63,13 +66,17 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public HashMap<String, String> validateEmailAndNickName(String email,String nickname) {
+    public HashMap<String, String> validateEmailAndNickName(String email,String nickName) {
         HashMap<String, String> result = new HashMap<>();
-        if(memberRepository.findByEmail(email)!=null){
+        Optional<Member> emailValidateCheck = memberRepository.findByEmail(email);
+        Optional<Member> nickNameValidateCheck = memberRepository.findByNickname(nickName);
+        if(emailValidateCheck.isPresent()){
+            System.out.println("memberRepository = " + memberRepository.findByEmail(email));
             result.put("error", "이메일이 중복되었습니다.");
             return result;
         }else{
-            if (memberRepository.findByNickname(nickname)!=null) {
+            if (nickNameValidateCheck.isPresent()) {
+                System.out.println("memberRepository = " + memberRepository.findByNickname(nickName));
                 result.put("error","닉네임이 중복되었습니다");
                 return result;
             }
@@ -80,11 +87,15 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public HashMap<String, String> validatePhoneNumAndNickName(String phoneNum, String nickName) {
         HashMap<String, String> result = new HashMap<>();
-        if(memberRepository.findByPhoneNum(phoneNum) !=null){
+        Optional<Member> phoneValidateCheck = memberRepository.findByPhoneNum(phoneNum);
+        Optional<Member> nickNameValidateCheck = memberRepository.findByNickname(nickName);
+
+        if(phoneValidateCheck.isPresent()){
+            System.out.println("memberRepository = " + memberRepository.findByPhoneNum(phoneNum));
             result.put("error", "핸드폰 번호가 중복되었습니다.");
             return result;
         }else{
-            if (memberRepository.findByNickname(nickName)!=null) {
+            if (nickNameValidateCheck.isPresent()) {
                 result.put("error","닉네임이 중복되었습니다");
                 return result;
 
@@ -97,20 +108,35 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void signUp(MemberDto memberDto) throws Exception {
         try {
-            System.out.println("memberDto = " + memberDto);
             Member member = Member.builder()
                     .loginId(memberDto.getLoginId())
-                    .email(memberDto.getEmail())
-                    .phoneNum(memberDto.getPhoneNum())
+                    .email(Optional.ofNullable(memberDto.getEmail()))
+                    .phoneNum(Optional.ofNullable(memberDto.getPhoneNum()))
                     .name(memberDto.getName())
                     .nickname(memberDto.getNickname())
                     .password(memberDto.getPassword())
                     .memberStatus(MemberStatus.ACTIVE)
                     .build();
-            System.out.println("member = " + member);
             memberRepository.save(member);
         } catch (Exception e) {
             System.out.println("e = " + e);
         }
     }
+
+    @Override
+    public MemberInfoDto logIn(MemberLoginDto memberLoginDto) {
+        MemberInfoDto memberInfoDto = new MemberInfoDto();
+        Member member = memberRepository.findByLoginId(memberLoginDto.getLoginId()).orElse(null);
+        //유저 체크
+        if (member == null) {
+            throw new NoSuchElementException("회원 정보가 없습니다.");
+        }
+        //입력된 비밀번호랑 db에 저장된 비밀번호 체크
+        if(member.getPassword().equals(memberLoginDto.getPassword())) {
+            return memberRepository.searchMemberAllInfo(member);
+        }else{
+            throw new IllegalStateException("비밀번호가 다릅니다.");
+        }
+    }
+
 }

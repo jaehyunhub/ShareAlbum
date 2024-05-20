@@ -1,8 +1,10 @@
 package shareAlbum.shareAlbum.domain.member.repository;
 
-import shareAlbum.shareAlbum.domain.member.dto.MemberDto;
+import shareAlbum.shareAlbum.domain.member.query.mainPage.MemberInfoDto;
+import shareAlbum.shareAlbum.domain.member.entity.Member;
 
 public interface MemberReposiotryCustom {
-    //회원아이디를 찾고 없으면 이메일을 찾기
-    void savePhoneNumOrEmail(MemberDto memberDto);
+    //로그인 후 멤버 정보전체 조회
+    MemberInfoDto searchMemberAllInfo(Member member);
+
 }

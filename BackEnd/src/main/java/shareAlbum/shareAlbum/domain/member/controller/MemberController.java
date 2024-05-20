@@ -1,17 +1,20 @@
 package shareAlbum.shareAlbum.domain.member.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import shareAlbum.shareAlbum.domain.member.dto.MemberDto;
+import shareAlbum.shareAlbum.domain.member.dto.MemberLoginDto;
+import shareAlbum.shareAlbum.domain.member.query.mainPage.MemberInfoDto;
 import shareAlbum.shareAlbum.domain.member.repository.MemberRepository;
 import shareAlbum.shareAlbum.domain.member.service.MemberService;
 
 import javax.validation.Valid;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,23 +25,45 @@ public class MemberController {
 
     //회원가입
     @PostMapping("/signup")
-    public Map<String,String> signUp(@Valid @RequestBody MemberDto memberDto, BindingResult result) {
+    public ResponseEntity<Map<String,String>> signUp(@Valid @RequestBody MemberDto memberDto, BindingResult result) {
         try {
-            HashMap<String, String> check = memberService.vaildateSignUp(result,memberDto);
-            System.out.println("여기까지는 로직이 도는거임?");
-            System.out.println("check = " + check);
-            if(!check.containsKey("success")) {
-                System.out.println("here11111");
-            }else{
+            HashMap<String, String> check = memberService.vaildateSignUp(result, memberDto);
+            if (check.containsKey("success")) {
                 memberService.signUp(memberDto);
+                return ResponseEntity.ok().build();
             }
-            return check;
+            //실패한 경우
+            return ResponseEntity.badRequest().body(check);
 
         } catch (Exception e) {
-            System.out.println("here5555");
             HashMap<String, String> error = new HashMap<>();
-            error.put("error", "로그인 실패");
-            return error;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/login")
+    public ResponseEntity<MemberInfoDto> login(@RequestBody @Valid MemberLoginDto memberLoginDto,BindingResult result) {
+        //아이디 정보 체크
+        try {
+            if (result.hasErrors()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+            System.out.println("memberLoginDto.toString() = " + memberLoginDto.toString());
+            MemberInfoDto memberInfoDto = memberService.logIn(memberLoginDto);
+            //회원정보가 있는지 한번 더 체크
+            if (memberInfoDto == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            return ResponseEntity.ok().body(memberInfoDto);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+
+
+
+
+
+
     }
 }

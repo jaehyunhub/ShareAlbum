@@ -7,8 +7,8 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Getter
-@NoArgsConstructor
 @ToString
+@NoArgsConstructor
 public class MemberDto {
 
     @NotBlank(message = "이메일 혹은 휴대폰번호를 입력해주세요")
