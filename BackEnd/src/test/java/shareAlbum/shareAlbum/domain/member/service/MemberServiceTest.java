@@ -1,67 +1,63 @@
 package shareAlbum.shareAlbum.domain.member.service;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.validation.BindingResult;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
+import shareAlbum.shareAlbum.domain.album.entity.Album;
+import shareAlbum.shareAlbum.domain.group.entity.GroupList;
+import shareAlbum.shareAlbum.domain.group.entity.QGroupList;
+import shareAlbum.shareAlbum.domain.group.repository.GroupRepository;
+import shareAlbum.shareAlbum.domain.group.repository.MyGroupRepository;
 import shareAlbum.shareAlbum.domain.member.dto.MemberDto;
 import shareAlbum.shareAlbum.domain.member.entity.Member;
 import shareAlbum.shareAlbum.domain.member.entity.MemberStatus;
+import shareAlbum.shareAlbum.domain.member.entity.QMember;
+import shareAlbum.shareAlbum.domain.member.query.mainPage.AlbumDto;
+import shareAlbum.shareAlbum.domain.member.query.mainPage.MemberInfoDto;
+import shareAlbum.shareAlbum.domain.member.query.mainPage.MyGroupDto;
 import shareAlbum.shareAlbum.domain.member.repository.MemberRepository;
 
-import javax.naming.Binding;
+import javax.persistence.EntityManager;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static shareAlbum.shareAlbum.domain.album.entity.QAlbum.album;
+import static shareAlbum.shareAlbum.domain.group.entity.QGroupList.groupList;
+import static shareAlbum.shareAlbum.domain.group.entity.QMyGroup.myGroup;
+import static shareAlbum.shareAlbum.domain.member.entity.QMember.member;
 
 @SpringBootTest
+@RunWith(SpringRunner.class)
 @Rollback(value = false)
+@Transactional
 public class MemberServiceTest {
 
     @Autowired
     MemberService memberService;
     @Autowired
     MemberRepository memberRepository;
+    @Autowired
+    MyGroupRepository myGroupRepository;
+
+    @Autowired
+    EntityManager em;
+    JPAQueryFactory queryFactory;
 
     @BeforeEach
-    public void before(){
-        //핸드폰번호
-        Member member1 = Member.builder()
-                .loginId("01011111111")
-                .name("김나비")
-                .nickname("kim1234")
-                .email("abc@abc.com")
-                .password("123456")
-                .phoneNum("01011111111")
-                .memberStatus(MemberStatus.ACTIVE)
-                .build();
-
-        Member member2 = Member.builder()
-                .loginId("abcd@abcd.com")
-                .name("김호랑")
-                .nickname("kimfe123")
-                .email("abcd@abcd.com")
-                .password("123456")
-                .phoneNum("01066778888")
-                .memberStatus(MemberStatus.ACTIVE)
-                .build();
-
-        Member member3 = Member.builder()
-                .loginId("cd@acd.com")
-                .name("김말숙")
-                .nickname("abc1234")
-                .email("cd@acd.com")
-                .password("123456")
-                .phoneNum("01024886444")
-                .memberStatus(MemberStatus.ACTIVE)
-                .build();
-        memberRepository.save(member1);
-        memberRepository.save(member2);
-        memberRepository.save(member3);
-
+    public void setUp() {
+        queryFactory = new JPAQueryFactory(em);
     }
+    
     @Test
     public void 회원가입중복체크() throws Exception{
         //given
@@ -138,6 +134,27 @@ public class MemberServiceTest {
         List<Member> result = memberRepository.findAll();
         //THEN
         Assertions.assertThat(result.size()).isEqualTo(6);
+    }
+
+    @Test
+    public void 회원메인페이지정보조회() throws Exception{
+        List<MyGroupDto> myGroupList = myGroupRepository.findByMemberId(1L);
+        System.out.println("myGroupList.toString() = " + myGroupList.toString());
+        List<Long> myGroupIdList = myGroupList.stream().map(o->o.getId()).collect(Collectors.toList());
+        System.out.println("myGroupIdList.toString() = " + myGroupIdList.toString());
+
+        List<AlbumDto> myAlbumList = queryFactory
+                .select(Projections.constructor(AlbumDto.class,
+                        album.id,
+                        album.imagePath))
+                .from(album)
+                .where(album.groupList.id.in(myGroupIdList))
+                .fetch();
+
+        Map<Long, List<AlbumDto>> myAlbumMap = myAlbumList.stream()
+                .collect(Collectors.groupingBy(albumDto -> albumDto.getId()));
+
+        System.out.println("myAlbumMap.toString() = " + myAlbumMap.toString());
     }
 
 
