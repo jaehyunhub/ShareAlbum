@@ -17,7 +17,6 @@ import shareAlbum.shareAlbum.domain.member.entity.Member;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtTokenProvider {
 
-    private final String secret;
+    private final String secret ;
     private final Key key;
     private final long tokenValidityInMilliseconds;
     private static final String AUTHORITIES_KEY = "auth";
@@ -89,8 +88,12 @@ public class JwtTokenProvider {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
         //
-        UserDetails principal = new User(claims.getSubject(),"",authorities);
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        UserDetails userDetails = User.builder()
+                .username(claims.getSubject())
+                .authorities(authorities)
+                .build();
+
+        return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }
 
     // 토큰 정보를 검증하는 메서드

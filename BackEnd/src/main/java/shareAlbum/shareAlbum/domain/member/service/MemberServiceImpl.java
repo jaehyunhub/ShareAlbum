@@ -1,6 +1,12 @@
 package shareAlbum.shareAlbum.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -11,6 +17,8 @@ import shareAlbum.shareAlbum.domain.member.query.mainPage.MemberInfoDto;
 import shareAlbum.shareAlbum.domain.member.entity.Member;
 import shareAlbum.shareAlbum.domain.member.entity.MemberStatus;
 import shareAlbum.shareAlbum.domain.member.repository.MemberRepository;
+import shareAlbum.shareAlbum.global.jwt.JwtToken;
+import shareAlbum.shareAlbum.global.jwt.JwtTokenProvider;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +28,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
+@Slf4j
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public HashMap<String,String> vaildateSignUp(BindingResult result,MemberDto memberDto) {
@@ -114,7 +126,7 @@ public class MemberServiceImpl implements MemberService {
                     .phoneNum(Optional.ofNullable(memberDto.getPhoneNum()))
                     .name(memberDto.getName())
                     .nickname(memberDto.getNickname())
-                    .password(memberDto.getPassword())
+                    .password(passwordEncoder.encode(memberDto.getPassword()))
                     .memberStatus(MemberStatus.ACTIVE)
                     .build();
             memberRepository.save(member);
@@ -125,18 +137,22 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MemberInfoDto logIn(MemberLoginDto memberLoginDto) {
-        MemberInfoDto memberInfoDto = new MemberInfoDto();
-        Member member = memberRepository.findByLoginId(memberLoginDto.getLoginId()).orElse(null);
-        //유저 체크
-        if (member == null) {
-            throw new NoSuchElementException("회원 정보가 없습니다.");
+        try {
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(memberLoginDto.getLoginId(), memberLoginDto.getPassword());
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
+
+            Member member = memberRepository.findByLoginId(memberLoginDto.getLoginId()).orElse(null);
+            MemberInfoDto memberInfoDto = memberRepository.searchMemberAllInfo(member);
+            memberInfoDto.setJwtToken(jwtToken);
+            return memberInfoDto;
+
+        } catch (AuthenticationException e) {
+            log.error("Authentication failed for user: {}", memberLoginDto.getLoginId(), e);
+            throw new IllegalStateException("Authentication failed", e);
         }
-        //입력된 비밀번호랑 db에 저장된 비밀번호 체크
-        if(member.getPassword().equals(memberLoginDto.getPassword())) {
-            return memberRepository.searchMemberAllInfo(member);
-        }else{
-            throw new IllegalStateException("비밀번호가 다릅니다.");
-        }
+
+
     }
 
 }
