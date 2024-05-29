@@ -8,22 +8,27 @@
     import axios from 'axios';
     import Link from 'next/link'
     import Head from 'next/head'
-
+import ImageButton from '@/app/componets/Button/ImageButton';
 
     const Login = () =>{    
     let router = useRouter();
-    const [id, setId] = useState("");
+    const [loginId, setloginId] = useState<string>("");
     const [password, setPassword] = useState("");
 
     const handleSubmit = async (event: FormEvent) =>{
         event.preventDefault();
         try{
-            const res = await axios.post("/login",{id,password})
-            router.push("")
+            const res = await axios.post("http://localhost:8080/login",{loginId,password},{ withCredentials: true })
+            router.push(`/${res}`)
         }catch(error: any){
             console.log(error);
         }
     }
+
+    const handleClick = () =>{
+
+    }
+
     return (
         <div className="w-screen h-screen flex items-center justify-center bg-[#FAFAFA]">
             <Head>
@@ -49,11 +54,11 @@
                             className="relative flex flex-col w-full p-10 space-y-5 bg-white ">
                         <div className="flex justify-center my-5 text-5xl tracking-wider">ShareAlbum</div>
                         <input 
-                            type="id" 
-                            name="id" 
-                            id="id" 
-                            value={id} 
-                            onChange={ (e) => setId(e.target.value)}
+                            type="text" 
+                            name="loginId" 
+                            id="loginId" 
+                            value={loginId} 
+                            onChange={ (e) => setloginId(e.target.value)}
                             className="w-full px-2 py-1 bg-gray-100 border rounded-sm outline-none hover:bg-transparent focus:bg-transparent placeholder:text-sm focus:border-gray-400"
                             placeholder="id"/>
                         <input 
@@ -76,10 +81,7 @@
 
                         <div className="flex items-center justify-center w-full text-center text-indigo-900">
                             <div className="pt-5">
-                                <SiKakaotalk className="inline-block mr-2 text-2xl"/>
-                                <span className="text-sm font-semibold mt-10 mb-6">
-                                    KakaoTalk으로 로그인
-                                </span>
+                                <ImageButton src="/images/kakao_login_medium_wide.png" alt="카카오로그인" onClick={handleClick}></ImageButton>
                             </div>                            
                         </div>
                         <div className="w-full text-center text-xs text-indigo-900 pt-5">비밀번호를 잊으셨나요?</div>
@@ -89,7 +91,7 @@
                     <div className="w-full py-5 space-y-5 text-sm text-center bg-white border border-gray-300 mt-2">
                         계정이 없으신가요?
                         <Link href="/signup">
-                        <button className="ml-2 font-semibold text-blue-500"><a href="/signup">가입하기</a></button>
+                        <button className="ml-2 font-semibold text-blue-500">가입하기</button>
                         </Link>
                     </div>
             
