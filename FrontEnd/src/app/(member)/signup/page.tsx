@@ -1,17 +1,35 @@
 "use client";
 import React, { FormEvent, useState } from "react";
 import Link from "next/link";
-import { SiKakaotalk } from "react-icons/si";
+import ImageButton from "@/app/components/Button/ImageButton";
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const SignUp = () => {
-  const [id, setId] = useState("");
-  const [name, setName] = useState("");
-  const [nickname,setNickName] = useState("");
-  const [password, setPassword] = useState("");
+  let router = useRouter();
+  const [loginId, setLoginId] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [nickname,setNickName] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [errors, setErrors] = useState<any>({});
 
-
-
-  const handleSubmit = () => {};
+  const handleSubmit = async ( event: FormEvent) => {
+    event.preventDefault();
+    try{
+      const res = await axios.post('http://localhost:8080/signup',{
+        loginId,
+        name,
+        nickname,
+        password
+      })
+      router.push('/login')
+    }catch(error:any){
+      console.log('error',error);
+    }
+  };
+  
+  const handleClick = () =>{
+  }
 
   return (
     <div className="w-screen h-screen mt-20 flex itmes-center justify-center m-auto">
@@ -25,13 +43,9 @@ const SignUp = () => {
             <div className=" text-center text-s pb-5 tracking-wider">
               가족, 친구들과의 추억을 평생 남기세요
             </div>
-            <button className=" bg-[#0099e6;] text-white active:scale-95 transform transition w-full h-9 disabled:bg-opacity-50 disabled:scale-100 rounded-lg text-sm font-semibold">
-              <SiKakaotalk className="inline-block mr-2 text-2xl text-yellow-400" />
-              <span className="text-sm font-semibold mt-10 mb-6">
-                KakaoTalk으로 로그인
-              </span>
-            </button>
-
+            <div className="flex items-center justify-center">
+              <ImageButton src="/images/kakao_login_medium_wide.png" alt="카카오로그인" onClick={handleClick}></ImageButton>
+            </div>
             <div className="flex items-center  justify-center flex-row w-full mt-5 space-x-2">
               <div className="h-[0.8px] w-full bg-slate-400" />
               <div className="text-sm font-semibold text-gray-400 whitespace-nowrap">또는</div>
@@ -43,27 +57,27 @@ const SignUp = () => {
               className="relative flex flex-col w-full mt-5 space-y-5 bg-white "
             >
               <input
-                type="id"
-                name="id"
-                id="id"
-                value={id}
-                onChange={(e) => setId(e.target.value)}
+                type="text"
+                name="loginId"
+                id="loginId"
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
                 className="w-full px-2 py-1 bg-gray-100 border rounded-sm outline-none hover:bg-transparent focus:bg-transparent placeholder:text-sm focus:border-gray-400"
                 placeholder="휴대폰 번호 또는 이메일 주소"
               />
               <input
-                type="password"
-                name="password"
-                id="password"
-                onChange={(e) => setPassword(e.target.value)}
+                type="text"
+                name="name"
+                id="name"
+                onChange={(e) => setName(e.target.value)}
                 className="w-full px-2 py-1 transition bg-gray-100 border rounded-sm outline-none hover:bg-transparent focus:bg-transparent placeholder:text-sm focus:border-gray-400"
                 placeholder="성명"
               />
               <input
-                type="name"
-                name="name"
-                id="name"
-                onChange={(e) => setPassword(e.target.value)}
+                type="text"
+                name="nickname"
+                id="nickname"
+                onChange={(e) => setNickName(e.target.value)}
                 className="w-full px-2 py-1 transition bg-gray-100 border rounded-sm outline-none hover:bg-transparent focus:bg-transparent placeholder:text-sm focus:border-gray-400"
                 placeholder="사용자 이름"
               />
@@ -75,11 +89,9 @@ const SignUp = () => {
                 className="w-full px-2 py-1 transition bg-gray-100 border rounded-sm outline-none hover:bg-transparent focus:bg-transparent placeholder:text-sm focus:border-gray-400"
                 placeholder="비밀번호"
               />
-              <Link href="">
-              <button className=" bg-[#0099e6;] text-white active:scale-95 transform transition w-full h-9 disabled:bg-opacity-50 disabled:scale-100 rounded-lg text-sm font-semibold">
+              <button className=" bg-[#0099e6;] text-white active:scale-95 transform transition w-full h-9 disabled:bg-opacity-50 disabled:scale-100 rounded-lg text-sm font-semibold "onClick={handleSubmit}>
                 가입
               </button>
-              </Link>
             </form>
           </div>
           {/* 여기끝 */}
@@ -90,7 +102,7 @@ const SignUp = () => {
           계정이 있으신가요?
           <Link href="/login">
             <button className="ml-2 font-semibold text-blue-500">
-              <a href="/signup">로그인</a>
+              로그인
             </button>
           </Link>
         </div>
