@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
+import shareAlbum.shareAlbum.domain.group.dto.GroupCreateDto;
 import shareAlbum.shareAlbum.domain.group.entity.GroupCategory;
 import shareAlbum.shareAlbum.domain.group.entity.GroupList;
 import shareAlbum.shareAlbum.domain.group.repository.GroupRepository;
@@ -42,12 +43,11 @@ class GroupServiceImplTest {
                 .build();
         memberRepository.save(member);
         //given
-        GroupList groupList = new GroupList("그룹테스트", GroupCategory.FRIEND);
-        groupList.setCreateBy("fejio@gamil.com");
-        System.out.println("member = " + memberRepository.findByLoginId(groupList.getCreateBy()));
+        GroupCreateDto groupCreateDto = new GroupCreateDto("그룹테스트","fejio@gamil.com" ,GroupCategory.FRIEND);
+        System.out.println("member = " + memberRepository.findByLoginId(groupCreateDto.getLoginId()));
 
         //WHEN
-        groupService.createGroup(groupList);
+        groupService.createGroup(groupCreateDto);
         List groupList1 = groupRepository.findAll();
 
         //THEN

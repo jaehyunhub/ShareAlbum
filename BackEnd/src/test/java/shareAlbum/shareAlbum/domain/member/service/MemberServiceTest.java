@@ -57,7 +57,7 @@ public class MemberServiceTest {
     public void setUp() {
         queryFactory = new JPAQueryFactory(em);
     }
-    
+
     @Test
     public void 회원가입중복체크() throws Exception{
         //given
@@ -135,7 +135,21 @@ public class MemberServiceTest {
         //THEN
         Assertions.assertThat(result.size()).isEqualTo(6);
     }
-
+    @Test
+    public void 로그인아이디로그룹조회() throws Exception{
+        List<MyGroupDto> myGroupList = queryFactory
+                .select(Projections.fields(MyGroupDto.class,
+                        groupList.id.as("id"),
+                        groupList.groupTitle.as("groupTitle")))
+                .from(myGroup)
+                .join(myGroup.member,member)
+                .join(myGroup.groupList,groupList)
+                .where(member.loginId.eq("abc123@gmail.com"))
+                .fetch();
+        for (MyGroupDto myGroupDto : myGroupList) {
+            System.out.println("myGroupDto.toString() = " + myGroupDto.toString());
+        }
+    }
     @Test
     public void 회원메인페이지정보조회() throws Exception{
         List<MyGroupDto> myGroupList = myGroupRepository.findByMemberId(1L);

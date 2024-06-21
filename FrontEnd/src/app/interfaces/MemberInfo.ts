@@ -5,14 +5,16 @@ interface JwtToken {
   }
   
   interface MyGroupInfo {
-    groupId: number;
+    id: number;
     groupTitle: string;
     // other fields
   }
   
   interface AlbumInfo {
-    albumId: number;
-    albumName: string;
+    id: number;
+    content:string;
+    imagePath:string;
+    groupListId:number;
     // other fields
   }
   

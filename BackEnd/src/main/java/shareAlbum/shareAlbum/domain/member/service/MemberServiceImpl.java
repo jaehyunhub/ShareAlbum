@@ -1,7 +1,10 @@
 package shareAlbum.shareAlbum.domain.member.service;
 
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -11,6 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import shareAlbum.shareAlbum.domain.group.dto.GroupCreateDto;
+import shareAlbum.shareAlbum.domain.group.entity.GroupCategory;
+import shareAlbum.shareAlbum.domain.group.entity.GroupList;
+import shareAlbum.shareAlbum.domain.group.service.GroupService;
 import shareAlbum.shareAlbum.domain.member.dto.MemberDto;
 import shareAlbum.shareAlbum.domain.member.dto.MemberLoginDto;
 import shareAlbum.shareAlbum.domain.member.query.mainPage.MemberInfoDto;
@@ -32,9 +39,11 @@ import java.util.Optional;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
+    private final GroupService groupService;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public HashMap<String,String> vaildateSignUp(BindingResult result,MemberDto memberDto) {
@@ -130,6 +139,7 @@ public class MemberServiceImpl implements MemberService {
                     .memberStatus(MemberStatus.ACTIVE)
                     .build();
             memberRepository.save(member);
+            groupService.createGroup(new GroupCreateDto(memberDto.getLoginId(), "Main",GroupCategory.DEFAULT));
         } catch (Exception e) {
             System.out.println("e = " + e);
         }
@@ -141,18 +151,22 @@ public class MemberServiceImpl implements MemberService {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(memberLoginDto.getLoginId(), memberLoginDto.getPassword());
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
-
             Member member = memberRepository.findByLoginId(memberLoginDto.getLoginId()).orElse(null);
             MemberInfoDto memberInfoDto = memberRepository.searchMemberAllInfo(member);
             memberInfoDto.setJwtToken(jwtToken);
+
+            String redisKey = "memberInfo" + memberInfoDto.getNickname();
+            redisTemplate.opsForValue().set(redisKey,memberInfoDto);
+            System.out.println("redisTemplate.opsForValue().get(redisKey) = " + redisTemplate.opsForValue().get(redisKey));
             return memberInfoDto;
 
         } catch (AuthenticationException e) {
             log.error("Authentication failed for user: {}", memberLoginDto.getLoginId(), e);
-            throw new IllegalStateException("Authentication failed", e);
+            throw new IllegalStateException("자격 증명에 실패하였습니다", e);
         }
 
 
     }
+
 
 }

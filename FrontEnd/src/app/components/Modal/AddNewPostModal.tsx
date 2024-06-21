@@ -2,7 +2,7 @@ import React, { ChangeEvent, useRef, useState } from "react";
 import { PiInstagramLogoThin } from "react-icons/pi";
 import { FaTimes } from "react-icons/fa";
 import { useAuthState } from "@/app/context/\bAuthContext";
-import axios from 'axios';
+import axios from "axios";
 
 const AddNewPostModal = (props: any) => {
   // 전달받은 state 함수
@@ -12,26 +12,27 @@ const AddNewPostModal = (props: any) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [image, setImage] = useState<File | null>(null);
   const [content, setContent] = useState<string>("");
-  const [group, setGroup] = useState<string>("");
-  const [groupId, setGroupId] = useState<number | null>(null);
+  const [groupId, setGroupId] = useState<number>();
 
   const handleClickOutSide = (event: MouseEvent) => {
     if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
       clickModal();
     }
   };
-  
+
   const handleGroupChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const selectedGroupTitle = event.target.value;
-    setGroup(selectedGroupTitle);
-    const selectedGroup = memberInfo?.myGroupList.find(group => group.groupTitle === selectedGroupTitle);
-    if (selectedGroup) {
-      setGroupId(selectedGroup.groupId);
-    }
+    const selectedGroupId = Number(event.target.value);
+    setGroupId(selectedGroupId);
+    // const selectedGroup = memberInfo?.myGroupList.find(
+    //   (group) => group.groupTitle === selectedGroupTitle
+    // );
+    // if (selectedGroup) {
+    //   setGroupId(selectedGroup.id);
+    //   console.log("-------------")
+    //   console.log(groupId);
+    // }
   };
 
-
-  
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const image = event.target.files?.[0];
     if (image) {
@@ -41,30 +42,47 @@ const AddNewPostModal = (props: any) => {
       };
       reader.readAsDataURL(image);
       setImage(image);
+      console.log("Fil selected",image);
+    }else{
+      console.log("No file selected");
     }
   };
 
-  const handleSubmit = async (event : React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if(!image || !groupId){
+    if (!image) {
       console.error("No file selected");
       return;
     }
-    const formData = new FormData();
-    formData.append("image",image);
-    formData.append("content",content);
-    formData.append("groupId",groupId.toString());
+    if(!groupId){
+      console.log("그룹ID가 없습니다")
+      return;
+    }
+    if(!memberInfo){
+      console.log("memberInfo가 없습니다")
+      return;
+    }
 
-    try{
-      const res = await axios.post("http://localhost:8080/uploadAlbum",formData,{
-        headers:{
-          "Content-Type" : "multipart/form-data",
-        },
-      });
-      console.log("업로드 되었습니당",res.data);
+    const formData = new FormData();    
+    formData.append("image", image);
+    formData.append("content", content);
+    formData.append("groupId", groupId.toString());
+    formData.append("loginId", memberInfo.loginId);
+
+    try {
+      const res = await axios.post(
+        "http://localhost:8080/uploadAlbum",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("업로드 되었습니당", res.data);
       clickModal(); // 업로드 후 모달 닫기
-    }catch(error){
-      console.error("사진 업로드 중 에러 발생",error)
+    } catch (error) {
+      console.error("사진 업로드 중 에러 발생", error);
     }
   };
 
@@ -120,7 +138,7 @@ const AddNewPostModal = (props: any) => {
                     className="hidden"
                     onChange={handleFileChange}
                   />
-                </label>
+                </label>  
               </div>
             )}
           </div>
@@ -132,19 +150,19 @@ const AddNewPostModal = (props: any) => {
                   그룹 선택
                 </label>
                 <select
-                  value={group}
+                  value={groupId}
                   onChange={handleGroupChange}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 >
                   <option value="groupCategory">그룹을 선택하세요</option>
                   {memberInfo?.myGroupList.map((group) => (
-                    <option key={group.groupId} value={group.groupTitle}>
+                    <option key={group.id} value={group.id}>
                       {group.groupTitle}
                     </option>
                   ))}
                 </select>
               </div>
-            
+
               <div className="mt-5">
                 <label className="block mb-2 text-sm font-medium text-gray-700">
                   글 내용

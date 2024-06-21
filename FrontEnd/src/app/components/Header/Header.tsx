@@ -10,7 +10,7 @@ import {
   AiOutlinePlusCircle,
 } from "react-icons/ai";
 import { IoPersonCircleOutline } from "react-icons/io5";
-import AddNewPostModal from "./AddNewPostModal";
+import AddNewPostModal from "../Modal/AddNewPostModal";
 export { FaTimesCircle as Cross } from "react-icons/fa";
 export { FiCompass as Compass } from "react-icons/fi";
 export { RiMessengerLine as Messenger } from "react-icons/ri";
