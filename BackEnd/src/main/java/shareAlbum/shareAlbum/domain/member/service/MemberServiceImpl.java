@@ -27,6 +27,8 @@ import shareAlbum.shareAlbum.domain.member.repository.MemberRepository;
 import shareAlbum.shareAlbum.global.jwt.JwtToken;
 import shareAlbum.shareAlbum.global.jwt.JwtTokenProvider;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -146,14 +148,28 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberInfoDto logIn(MemberLoginDto memberLoginDto) {
+    public MemberInfoDto logIn(MemberLoginDto memberLoginDto, HttpServletResponse response) {
         try {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(memberLoginDto.getLoginId(), memberLoginDto.getPassword());
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
             Member member = memberRepository.findByLoginId(memberLoginDto.getLoginId()).orElse(null);
             MemberInfoDto memberInfoDto = memberRepository.searchMemberAllInfo(member);
-            memberInfoDto.setJwtToken(jwtToken);
+            //memberInfoDto.setJwtToken(jwtToken);
+
+            //JWT 토큰을 쿠키에 저장
+            Cookie accessTokenCookie = new Cookie("accessToken", jwtToken.getAccessToken());
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge((int) jwtTokenProvider.getTokenValidityInMilliseconds() / 1000); // 초 단위로 설정
+            response.addCookie(accessTokenCookie);
+
+            Cookie refreshTokenCookie = new Cookie("refreshToken", jwtToken.getRefreshToken());
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge(24 * 60 * 60); // 1일 (24시간)로 설정
+            response.addCookie(refreshTokenCookie);
+
 
             String redisKey = "memberInfo" + memberInfoDto.getNickname();
             redisTemplate.opsForValue().set(redisKey,memberInfoDto);
@@ -166,6 +182,17 @@ public class MemberServiceImpl implements MemberService {
         }
 
 
+    }
+    
+
+    @Override
+    public MemberInfoDto authNickName(String nickname) {
+        Member member = memberRepository.findByNickname(nickname).orElseThrow();
+        MemberInfoDto memberInfoDto = memberRepository.searchMemberAllInfo(member);
+        String redisKey = "memberInfo" + member.getNickname();
+        redisTemplate.delete(redisKey);
+        redisTemplate.opsForValue().set(redisKey,memberInfoDto);
+        return memberInfoDto;
     }
 
 
