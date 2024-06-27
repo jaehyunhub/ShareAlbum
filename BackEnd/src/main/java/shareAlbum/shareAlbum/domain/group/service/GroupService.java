@@ -1,14 +1,17 @@
 package shareAlbum.shareAlbum.domain.group.service;
 
+import shareAlbum.shareAlbum.domain.group.dto.GroupAcceptionDto;
 import shareAlbum.shareAlbum.domain.group.dto.GroupCreateDto;
-import shareAlbum.shareAlbum.domain.group.entity.GroupList;
+import shareAlbum.shareAlbum.domain.group.dto.GroupInvitationDto;
 
 public interface GroupService {
 
-    //그룹 만들기
-    public void createGroup(GroupList groupList);
+    void createGroup(GroupCreateDto groupCreateDto);
+
     //그룹 초대 보내기
-    //그룹 멤버 추방?
-    //그룹 삭제
+    void inviteGroup(GroupInvitationDto groupInvitation);
+
+    //그룹 초대 승인
+    void AcceptGroupInvitation(GroupAcceptionDto groupAcceptionDto);
 
 }
