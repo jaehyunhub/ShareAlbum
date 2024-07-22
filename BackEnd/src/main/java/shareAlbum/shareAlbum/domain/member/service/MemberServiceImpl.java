@@ -20,6 +20,8 @@ import shareAlbum.shareAlbum.domain.group.entity.GroupList;
 import shareAlbum.shareAlbum.domain.group.service.GroupService;
 import shareAlbum.shareAlbum.domain.member.dto.MemberDto;
 import shareAlbum.shareAlbum.domain.member.dto.MemberLoginDto;
+import shareAlbum.shareAlbum.domain.member.dto.MemberSearchResultDto;
+import shareAlbum.shareAlbum.domain.member.dto.SearchResultsDto;
 import shareAlbum.shareAlbum.domain.member.query.mainPage.MemberInfoDto;
 import shareAlbum.shareAlbum.domain.member.entity.Member;
 import shareAlbum.shareAlbum.domain.member.entity.MemberStatus;
@@ -33,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -155,19 +158,18 @@ public class MemberServiceImpl implements MemberService {
             JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
             Member member = memberRepository.findByLoginId(memberLoginDto.getLoginId()).orElse(null);
             MemberInfoDto memberInfoDto = memberRepository.searchMemberAllInfo(member);
-            //memberInfoDto.setJwtToken(jwtToken);
 
             //JWT 토큰을 쿠키에 저장
             Cookie accessTokenCookie = new Cookie("accessToken", jwtToken.getAccessToken());
             accessTokenCookie.setHttpOnly(true);
             accessTokenCookie.setPath("/");
-            accessTokenCookie.setMaxAge((int) jwtTokenProvider.getTokenValidityInMilliseconds() / 1000); // 초 단위로 설정
+            accessTokenCookie.setMaxAge((int) jwtTokenProvider.getAccessTokenValidityInMilliseconds() / 1000); // 초 단위로 설정
             response.addCookie(accessTokenCookie);
 
             Cookie refreshTokenCookie = new Cookie("refreshToken", jwtToken.getRefreshToken());
             refreshTokenCookie.setHttpOnly(true);
             refreshTokenCookie.setPath("/");
-            refreshTokenCookie.setMaxAge(24 * 60 * 60); // 1일 (24시간)로 설정
+            refreshTokenCookie.setMaxAge((int) jwtTokenProvider.getRefreshTokenValidityInMilliseconds() / 1000); // 10분
             response.addCookie(refreshTokenCookie);
 
 
@@ -183,7 +185,40 @@ public class MemberServiceImpl implements MemberService {
 
 
     }
-    
+
+    @Override
+    public String logout(String nickname,HttpServletResponse response) {
+        try{
+            // Access Token 쿠키 삭제
+            Cookie accessTokenCookie = new Cookie("accessToken", null);
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge(0); // 쿠키를 즉시 삭제
+            response.addCookie(accessTokenCookie);
+
+            // Refresh Token 쿠키 삭제
+            Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge(0);
+            response.addCookie(refreshTokenCookie);
+
+
+            String redisKey = "memberInfo" + nickname;
+            redisTemplate.delete(redisKey);
+            // 삭제 확인
+            Object value = redisTemplate.opsForValue().get(redisKey);
+            if (value == null) {
+                System.out.println("Redis key 삭제 성공: " + redisKey);
+            } else {
+                System.out.println("Redis key 삭제 실패: " + redisKey + ", 값: " + value);
+            }
+            return "Success";
+        }catch (Exception e){
+            e.printStackTrace();
+            return "False";
+        }
+    }
 
     @Override
     public MemberInfoDto authNickName(String nickname) {
@@ -195,5 +230,17 @@ public class MemberServiceImpl implements MemberService {
         return memberInfoDto;
     }
 
+    @Override
+    public List<SearchResultsDto> searchAllNickname(String nickname,String data) {
+        Optional<List<Member>> optionalMembers = memberRepository.findAllMemberByNickName(nickname);
+        List<Member> members = optionalMembers.orElseThrow(() -> new NoSuchElementException("No members found with nickname: " + nickname));
+        List<SearchResultsDto> searchResults = members.stream()
+                .filter(member -> !member.getNickname().equals(data))
+                .map(member -> new SearchResultsDto(member.getNickname(),member.getId()))
+                .collect(Collectors.toList());
+        System.out.println("searchResults = " + searchResults);
+        return searchResults;
 
+
+    }
 }
