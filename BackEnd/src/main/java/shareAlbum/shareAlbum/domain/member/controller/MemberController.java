@@ -109,4 +109,17 @@ public class MemberController {
         }
 
     }
+
+    @GetMapping("/searchResults/{nickname}")
+    public ResponseEntity<MemberInfoDto> searchResultsMemberInfo(@PathVariable("nickname") String nickname){
+        try{
+            Member searchResultMember = memberRepository.findByNickname(nickname).orElseThrow(()-> new NoSuchElementException(nickname+"의 회원정보가 없습니다"));
+            MemberInfoDto memberSearchResultDto = memberRepository.searchMemberAllInfo(searchResultMember);
+            return ResponseEntity.ok().body(memberSearchResultDto);
+        }catch (NoSuchElementException e){
+            System.out.println("e = " + e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+    }
 }
