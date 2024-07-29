@@ -14,11 +14,7 @@ const AddNewPostModal = (props: any) => {
   const [content, setContent] = useState<string>("");
   const [groupId, setGroupId] = useState<number>();
 
-  const handleClickOutSide = (event: MouseEvent) => {
-    if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-      clickModal();
-    }
-  };
+ 
 
   const handleGroupChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const selectedGroupId = Number(event.target.value);
@@ -83,6 +79,12 @@ const AddNewPostModal = (props: any) => {
       clickModal(); // 업로드 후 모달 닫기
     } catch (error) {
       console.error("사진 업로드 중 에러 발생", error);
+    }
+  };
+
+  const handleClickOutSide = (event: MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      clickModal();
     }
   };
 

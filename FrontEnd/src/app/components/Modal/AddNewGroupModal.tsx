@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { FaTimes } from "react-icons/fa";
 import axios from "axios";
 import { useAuthState } from "@/app/context/\bAuthContext";
 
-const AddNewGroupModal = ({ clickModal }: { clickModal: () => void }) => {
+const AddNewGroupModal = (props: any) => {
+  const { clickModal } = props;
   const [groupTitle, setGroupTitle] = useState("");
   const [groupCategory, setGroupCategory] = useState("FAMILY");
   const { user: memberInfo } = useAuthState();
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -28,10 +30,22 @@ const AddNewGroupModal = ({ clickModal }: { clickModal: () => void }) => {
       console.error("그룹 추가 중 오류 발생:", error);
     }
   };
+  const handleClickOutSide = (event: MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      clickModal();
+    }
+  };
+
+  React.useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutSide);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutSide);
+    };
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="relative flex flex-col h-auto w-[500px] bg-white rounded-lg shadow-lg">
+      <div ref={modalRef} className="relative flex flex-col h-auto w-[500px] bg-white rounded-lg shadow-lg">
         <button className="absolute top-3 right-3 text-gray-600 hover:text-gray-800" onClick={clickModal}>
           <FaTimes size={24} />
         </button>
