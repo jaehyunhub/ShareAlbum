@@ -17,6 +17,27 @@ interface JwtToken {
     groupListId:number;
     // other fields
   }
+
+  interface GroupInvitationList{
+    invitationId:number;
+    inviterId: string;
+    receiverId: string;
+    groupTitle:string;
+  }
+
+  export interface SearchResultsNickname{
+    id: number;
+    nickname:string;
+  }
+
+  export interface SearchResultsMemberInfo{
+    name: string;
+    id:number;
+    loginId: string;
+    nickname: string;
+    myGroupList: MyGroupInfo[];
+    myAlbum: Record<number, AlbumInfo[]>;
+  }
   
   export interface MemberInfo {
     name: string;
@@ -25,6 +46,7 @@ interface JwtToken {
     nickname: string;
     myGroupList: MyGroupInfo[];
     myAlbum: Record<number, AlbumInfo[]>;
+    groupInvitationList : GroupInvitationList[];
     jwtToken: JwtToken;
   }
   

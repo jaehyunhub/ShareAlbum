@@ -46,6 +46,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .antMatchers("/search/**").permitAll()
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers("/createGroup","/inviteGroup").permitAll()
+                .antMatchers("/acceptGroupInvitation","/rejectGroupInvitation").permitAll()
                 .antMatchers("/images/**").permitAll()
                 .antMatchers("/uploadAlbum").permitAll()
                 .antMatchers("/searchResults/**").permitAll()

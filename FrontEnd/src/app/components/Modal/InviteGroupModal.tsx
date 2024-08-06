@@ -3,14 +3,13 @@ import React, { useRef, useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import axios from "axios";
 import { useAuthState } from "@/app/context/\bAuthContext";
-import { group } from "console";
 
 interface InviteGroupModalProps {
   clickModal: () => void;
-  inviteeNickname: string;
+  receiverId: string;
 }
 
-const InviteGroupModal: React.FC<InviteGroupModalProps> = ({ clickModal, inviteeNickname }) => {
+const InviteGroupModal: React.FC<InviteGroupModalProps> = ({ clickModal, receiverId }) => {
   const [selectedGroup, setSelectedGroup] = useState("");
   const { user: memberInfo } = useAuthState();
   const modalRef = useRef<HTMLDivElement>(null);
@@ -29,9 +28,9 @@ const InviteGroupModal: React.FC<InviteGroupModalProps> = ({ clickModal, invitee
       return;
     }
     try {
-      const response = await axios.post("http://localhost:8080/invite", {
-        inviterNickname: memberInfo.nickname,
-        inviteeNickname,
+      const response = await axios.post("http://localhost:8080/inviteGroup", {
+        inviterId: memberInfo.nickname,
+        receiverId,
         groupId: selectedGroup
       });
       console.log("초대가 성공적으로 전송되었습니다:", response.data);

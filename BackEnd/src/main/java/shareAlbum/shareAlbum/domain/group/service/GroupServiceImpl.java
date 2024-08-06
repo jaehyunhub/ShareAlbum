@@ -63,19 +63,36 @@ public class GroupServiceImpl implements GroupService{
     }
 
     @Override
-    public void AcceptGroupInvitation(GroupAcceptionDto groupAcceptionDto) {
-        Invitation invitation = invitationRepository.findInvitationById(groupAcceptionDto.getInvitationId()).orElseThrow(()-> new NoSuchElementException());
-        if(groupAcceptionDto.getInvitationStatus().equals(InvitationStatus.ACCEPT)){
+    public void acceptGroupInvitation(GroupInvitationDto groupInvitationDto) {
+        Invitation invitation = invitationRepository.findInvitationById(groupInvitationDto.getInvitationId()).orElseThrow(()-> new NoSuchElementException());
+        if(groupInvitationDto.getInvitationStatus().equals(InvitationStatus.ACCEPT)){
             MyGroup myGroup = MyGroup.builder()
-                    .member(memberRepository.findByNickname(groupAcceptionDto.getReceiverId()).orElseThrow(()-> new NoSuchElementException("회원정보가 없습니다")))
-                    .groupList(groupRepository.findById(groupAcceptionDto.getGroupId()))
+                    .member(memberRepository.findByNickname(groupInvitationDto.getReceiverId()).orElseThrow(()-> new NoSuchElementException("회원정보가 없습니다")))
+                    .groupList(groupRepository.findById(invitation.getGroupList().getId()))
                     .build();
+            System.out.println("myGroup.toString() = " + myGroup.toString());
             myGroupRepository.save(myGroup);
             invitation.changeStatus(InvitationStatus.ACCEPT);
             invitationRepository.save(invitation);
-        }else if(groupAcceptionDto.getInvitationStatus().equals(InvitationStatus.REJECT)){
-            invitation.changeStatus(InvitationStatus.REJECT);
-            invitationRepository.save(invitation);
+        }else {
+            System.out.println("에러 발생");
         }
+    }
+
+    @Override
+    public void rejectGroupInvitation(GroupInvitationDto groupInvitationDto) {
+//        Invitation invitation = invitationRepository.findInvitationById(groupAcceptionDto.getInvitationId()).orElseThrow(()-> new NoSuchElementException());
+//        if(groupAcceptionDto.getInvitationStatus().equals(InvitationStatus.ACCEPT)){
+//            MyGroup myGroup = MyGroup.builder()
+//                    .member(memberRepository.findByNickname(groupAcceptionDto.getReceiverId()).orElseThrow(()-> new NoSuchElementException("회원정보가 없습니다")))
+//                    .groupList(groupRepository.findById(groupAcceptionDto.getGroupId()))
+//                    .build();
+//            myGroupRepository.save(myGroup);
+//            invitation.changeStatus(InvitationStatus.ACCEPT);
+//            invitationRepository.save(invitation);
+//        }else if(groupAcceptionDto.getInvitationStatus().equals(InvitationStatus.REJECT)){
+//            invitation.changeStatus(InvitationStatus.REJECT);
+//            invitationRepository.save(invitation);
+//        }
     }
 }

@@ -118,7 +118,7 @@ const ProfilePage: React.FC = () => {
 
       {/* 초대 모달 */}
       {showInviteModal && 
-      <InviteGroupModal inviteeNickname={searchResultsMemberInfo.nickname} clickModal={clickModal} />}
+      <InviteGroupModal receiverId={searchResultsMemberInfo.nickname} clickModal={clickModal} />}
     </div>
   );
 };

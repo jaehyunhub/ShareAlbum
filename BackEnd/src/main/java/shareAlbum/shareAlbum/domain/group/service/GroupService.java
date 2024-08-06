@@ -12,6 +12,8 @@ public interface GroupService {
     void inviteGroup(GroupInvitationDto groupInvitation);
 
     //그룹 초대 승인
-    void AcceptGroupInvitation(GroupAcceptionDto groupAcceptionDto);
+    void acceptGroupInvitation(GroupInvitationDto groupInvitationDto);
+
+    void rejectGroupInvitation(GroupInvitationDto groupInvitationDto);
 
 }
