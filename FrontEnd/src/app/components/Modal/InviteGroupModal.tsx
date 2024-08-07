@@ -3,16 +3,23 @@ import React, { useRef, useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import axios from "axios";
 import { useAuthState } from "@/app/context/\bAuthContext";
+import {SearchResultsMemberInfo}  from "@/app/interfaces/MemberInfo";
 
 interface InviteGroupModalProps {
   clickModal: () => void;
-  receiverId: string;
+  searchResultsMemberInfo: SearchResultsMemberInfo;
 }
 
-const InviteGroupModal: React.FC<InviteGroupModalProps> = ({ clickModal, receiverId }) => {
+const InviteGroupModal: React.FC<InviteGroupModalProps> = ({ clickModal, searchResultsMemberInfo }) => {
   const [selectedGroup, setSelectedGroup] = useState("");
   const { user: memberInfo } = useAuthState();
   const modalRef = useRef<HTMLDivElement>(null);
+
+  // 중복 그룹 필터링
+  const availableGroups = memberInfo?.myGroupList.filter(
+    group => group.groupTitle !== "Main" && 
+    !searchResultsMemberInfo.myGroupList.some(searchGroup => searchGroup.id === group.id)
+  );
 
   const handleClickOutside = (event: MouseEvent) => {
     if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -30,7 +37,7 @@ const InviteGroupModal: React.FC<InviteGroupModalProps> = ({ clickModal, receive
     try {
       const response = await axios.post("http://localhost:8080/inviteGroup", {
         inviterId: memberInfo.nickname,
-        receiverId,
+        receiverId: searchResultsMemberInfo.nickname,
         groupId: selectedGroup
       });
       console.log("초대가 성공적으로 전송되었습니다:", response.data);
@@ -66,7 +73,7 @@ const InviteGroupModal: React.FC<InviteGroupModalProps> = ({ clickModal, receive
                 required
               >
                 <option value="">그룹을 선택하세요</option>
-                {memberInfo?.myGroupList.map((group) => (
+                {availableGroups?.map((group) => (
                   <option key={group.id} value={group.id}>
                     {group.groupTitle}
                   </option>
