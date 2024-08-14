@@ -31,15 +31,14 @@
 **Frontend(Web)**
 - **Language** : JavaScript, TypeScript
 - **Library & Framework** : React, Next.Js
+<br/>
 
-<br />
 **Backend**
 - **Language** : Java 
 - **Library & Framework** : Spring Boot
 - **Database** : PostgrelSql
 - **ORM** : JPA
 - **Deploy**: AWS(EC2, RDS), Redis(Cache),Docker
-
 <br/>
 
 ## 💡 기대효과
