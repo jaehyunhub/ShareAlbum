@@ -1,17 +1,18 @@
 "use client";
 import { useAuthState } from "@/app/context/\bAuthContext";
 import React, { useState, useRef, useEffect } from "react";
-import { FaPlus } from "react-icons/fa";
-import axios from "axios";
+import { FaPlus, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import AddNewGroupModal from "@/app/components/Modal/AddNewGroupModal";
+import { CgProfile } from "react-icons/cg";
 
 const UserMainPage: React.FC = () => {
   const { user: memberInfo } = useAuthState();
   const [activeTab, setActiveTab] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
+  const [visibleStartIndex, setVisibleStartIndex] = useState(0); // 현재 보여지는 그룹 시작 인덱스
+  const MAX_VISIBLE_GROUPS = 4; // 한번에 보여지는 최대 그룹 수
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // 버튼 클릭시 모달 버튼 클릭 유무를 설정하는 state 함수
   const clickModal = () => setShowModal(!showModal);
 
   useEffect(() => {
@@ -27,6 +28,27 @@ const UserMainPage: React.FC = () => {
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
   };
+
+  const handleNext = () => {
+    if (visibleStartIndex + MAX_VISIBLE_GROUPS < memberInfo.myGroupList.length) {
+      setVisibleStartIndex(visibleStartIndex + 4);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (visibleStartIndex > 0) {
+      if(visibleStartIndex -4 < 0){
+        setVisibleStartIndex(visibleStartIndex - 1);  
+      }else{
+        setVisibleStartIndex(visibleStartIndex - 4);
+      }
+    }
+  };
+
+  const visibleGroups = memberInfo.myGroupList.slice(
+    visibleStartIndex,
+    visibleStartIndex + MAX_VISIBLE_GROUPS
+  );
 
   const renderGridItems = () => {
     const albumGroupId = memberInfo.myGroupList.find(group => group.groupTitle === activeTab)?.id;
@@ -45,20 +67,17 @@ const UserMainPage: React.FC = () => {
         </div>
       ));
     } else {
-      return <div>사진이 없습니다.</div>;
+      return <div className="flex items-center ">사진이 없습니다.</div>;
     }
   };
-  if (!memberInfo) {
-    return <div>Loading...</div>;
-  }
-  
+
   return (
     <div className="bg-white min-h-screen flex flex-col items-center">
       <div className="w-full max-w-4xl mt-20 flex flex-col items-center bg-[#FAFAFA]">
         <div className="flex w-full items-center p-4">
           <div className="w-1/3 flex flex-col items-center justify-center">
             <div className="w-32 h-32 bg-gray-200 rounded-full mb-4 flex items-center justify-center">
-              <img src="/path/to/profile-pic.jpg" alt="프로필" className="w-full h-full rounded-full object-cover" />
+              <CgProfile className="w-full h-full text-gray-700"/>
             </div>
           </div>
           <div className="w-2/3 pl-4 flex flex-col justify-center">
@@ -71,17 +90,27 @@ const UserMainPage: React.FC = () => {
 
       <div className="w-full max-w-4xl p-4">
         <div className="flex justify-center items-center border-b">
-          {memberInfo.myGroupList.map((group) => (
+          {visibleStartIndex > 0 && (
+            <button onClick={handlePrevious} className="mr-2">
+              <FaChevronLeft />
+            </button>
+          )}
+          {visibleGroups.map((group) => (
             <button
               key={group.id}
               onClick={() => handleTabClick(group.groupTitle)}
-              className={`py-2 ml-5 mr-5 ${activeTab === group.groupTitle ? "border-b-2 border-black" : ""}`}
+              className={`py-2 ml-2 mr-2 ${activeTab === group.groupTitle ? "border-b-2 border-black" : ""}`}
             >
               {group.groupTitle}
             </button>
           ))}
+          {visibleStartIndex + MAX_VISIBLE_GROUPS < memberInfo.myGroupList.length && (
+            <button onClick={handleNext} className="ml-2">
+              <FaChevronRight />
+            </button>
+          )}
           <button
-            className="py-2 px-4 border rounded-full flex items-center justify-center"
+            className="py-2 px-4 border rounded-full flex items-center justify-center ml-2"
             onClick={clickModal}
           >
             <FaPlus size={16} />
