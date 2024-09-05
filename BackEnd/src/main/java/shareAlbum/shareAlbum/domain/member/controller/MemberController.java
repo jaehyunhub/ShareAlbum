@@ -63,6 +63,7 @@ public class MemberController {
             if (memberInfoDto == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
+            System.out.println("memberInfoDto = " + memberInfoDto);
             return ResponseEntity.ok().body(memberInfoDto);
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -101,6 +102,10 @@ public class MemberController {
     public ResponseEntity<List<SearchResultsDto>> searchMembers(@PathVariable("nickname") String nickname,
                                                                 @RequestParam String data){
         try{
+            System.out.println("======================");
+            System.out.println("nickname = " + nickname);
+            System.out.println(" = " + data);
+            System.out.println("======================");
             List<SearchResultsDto> memberSearchResultDto = memberService.searchAllNickname(nickname,data);
             return ResponseEntity.ok().body(memberSearchResultDto);
         }catch (NoSuchElementException e){

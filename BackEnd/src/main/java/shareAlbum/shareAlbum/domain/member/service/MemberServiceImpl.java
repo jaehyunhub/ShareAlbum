@@ -16,11 +16,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import shareAlbum.shareAlbum.domain.group.dto.GroupCreateDto;
 import shareAlbum.shareAlbum.domain.group.entity.GroupCategory;
-import shareAlbum.shareAlbum.domain.group.entity.GroupList;
 import shareAlbum.shareAlbum.domain.group.service.GroupService;
 import shareAlbum.shareAlbum.domain.member.dto.MemberDto;
 import shareAlbum.shareAlbum.domain.member.dto.MemberLoginDto;
-import shareAlbum.shareAlbum.domain.member.dto.MemberSearchResultDto;
 import shareAlbum.shareAlbum.domain.member.dto.SearchResultsDto;
 import shareAlbum.shareAlbum.domain.member.query.mainPage.MemberInfoDto;
 import shareAlbum.shareAlbum.domain.member.entity.Member;
@@ -173,7 +171,7 @@ public class MemberServiceImpl implements MemberService {
             response.addCookie(refreshTokenCookie);
 
 
-            String redisKey = "memberInfo" + memberInfoDto.getNickname();
+            String redisKey = memberInfoDto.getNickname();
             redisTemplate.opsForValue().set(redisKey,memberInfoDto);
             System.out.println("redisTemplate.opsForValue().get(redisKey) = " + redisTemplate.opsForValue().get(redisKey));
             return memberInfoDto;
@@ -204,7 +202,7 @@ public class MemberServiceImpl implements MemberService {
             response.addCookie(refreshTokenCookie);
 
 
-            String redisKey = "memberInfo" + nickname;
+            String redisKey = nickname;
             redisTemplate.delete(redisKey);
             // 삭제 확인
             Object value = redisTemplate.opsForValue().get(redisKey);
@@ -232,10 +230,10 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public List<SearchResultsDto> searchAllNickname(String nickname,String data) {
-        Optional<List<Member>> optionalMembers = memberRepository.findAllMemberByNickName(nickname);
+        Optional<List<Member>> optionalMembers = memberRepository.findAllMembersByNickName(nickname);
         List<Member> members = optionalMembers.orElseThrow(() -> new NoSuchElementException("No members found with nickname: " + nickname));
         List<SearchResultsDto> searchResults = members.stream()
-                .filter(member -> !member.getNickname().equals(data))
+                .filter(member -> !member.getNickname().equals(data)) //자기 자신의 nickname
                 .map(member -> new SearchResultsDto(member.getNickname(),member.getId()))
                 .collect(Collectors.toList());
         System.out.println("searchResults = " + searchResults);

@@ -5,6 +5,7 @@ import lombok.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.Optional;
 
 @Getter
 @ToString
@@ -25,6 +26,7 @@ public class MemberDto {
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{1,10}$",
             message = "비밀번호는 1~10 자리이면서 1개 이상의 알파벳, 숫자, 특수문자를 포함해야합니다.")
     private String password;
+
     private String email;
     private String phoneNum;
 
