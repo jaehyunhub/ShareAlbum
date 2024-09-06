@@ -1,13 +1,9 @@
-<p align="middle" >
-  <img width="200px;" src=""/>
-</p>
-<h1 align="middle">ShareAlbum</h1>
-<h3 align="middle">앨범 공유 서비스</h3>
-<br/>
 
-## 🌁 프로젝트 배경
+<h1>
+  <img src="https://github.com/user-attachments/assets/5bd1761a-dd3e-45c5-bdab-9e88d2fbb489" alt="아이콘" width="150" height="150" align="middle">  
+  ShareAlbum(앨범 공유)
+</h1>  
 
-<br/>
 
 ## ⭐ 주요 기능
 <!--
