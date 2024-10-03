@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import shareAlbum.shareAlbum.domain.group.dto.GroupInvitationDto;
 import shareAlbum.shareAlbum.domain.group.entity.InvitationStatus;
 import shareAlbum.shareAlbum.domain.group.repository.MyGroupRepository;
+import shareAlbum.shareAlbum.domain.member.entity.QMember;
 import shareAlbum.shareAlbum.domain.member.query.mainPage.AlbumDto;
 import shareAlbum.shareAlbum.domain.member.query.mainPage.MemberInfoDto;
 import shareAlbum.shareAlbum.domain.member.entity.Member;
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 import static shareAlbum.shareAlbum.domain.album.entity.QAlbum.album;
 import static shareAlbum.shareAlbum.domain.group.entity.QGroupList.groupList;
 import static shareAlbum.shareAlbum.domain.group.entity.QInvitation.invitation;
+import static shareAlbum.shareAlbum.domain.group.entity.QMyGroup.myGroup;
+import static shareAlbum.shareAlbum.domain.member.entity.QMember.*;
 import static shareAlbum.shareAlbum.domain.member.entity.QMember.member;
 
 @Repository
@@ -43,13 +46,8 @@ public class MemberRepositoryImpl implements MemberReposiotryCustom{
     @Override
     public MemberInfoDto searchMemberAllInfo(Member member){
         List<MyGroupDto> myGroupList = myGroupRepository.findByMemberId(member.getId());
-        System.out.println("myGroupList = " + myGroupList);
         List<Long> myGroupIdList = myGroupList.stream().map(o->o.getGroupId()).collect(Collectors.toList());
-        System.out.println("myGroupIdList.toString() = " + myGroupIdList.toString());
-        System.out.println(" ================");
-        System.out.println("myGroupIdList = " + myGroupIdList);
-        System.out.println(" ================");
-        
+
         List<AlbumDto> myAlbumList = queryFactory
                 .select(Projections.fields(AlbumDto.class,
                         album.id,
@@ -98,6 +96,5 @@ public class MemberRepositoryImpl implements MemberReposiotryCustom{
                 .fetch();
         return Optional.ofNullable(members.isEmpty() ? null : members);
     }
-
 
 }

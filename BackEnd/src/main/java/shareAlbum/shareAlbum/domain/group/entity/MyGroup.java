@@ -30,8 +30,6 @@ public class MyGroup {
     @JoinColumn(name = "groupList_id")
     private GroupList groupList;
 
-    @OneToMany(mappedBy = "myGroup")
-    private List<Invitation> invitation = new ArrayList<>();
 
     //초대된 날짜정도?
     @Builder

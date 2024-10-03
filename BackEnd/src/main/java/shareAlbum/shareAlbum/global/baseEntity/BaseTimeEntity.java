@@ -1,4 +1,4 @@
-package shareAlbum.shareAlbum.domain.baseEntity;
+package shareAlbum.shareAlbum.global.baseEntity;
 
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;

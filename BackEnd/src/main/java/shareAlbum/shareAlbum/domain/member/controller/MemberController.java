@@ -15,6 +15,7 @@ import shareAlbum.shareAlbum.domain.member.entity.Member;
 import shareAlbum.shareAlbum.domain.member.query.mainPage.MemberInfoDto;
 import shareAlbum.shareAlbum.domain.member.repository.MemberRepository;
 import shareAlbum.shareAlbum.domain.member.service.MemberService;
+import shareAlbum.shareAlbum.global.redis.RedisService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +31,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final MemberRepository memberRepository;
+    private final RedisService redisService;
 
     //회원가입
     @PostMapping("/signup")
@@ -102,10 +104,6 @@ public class MemberController {
     public ResponseEntity<List<SearchResultsDto>> searchMembers(@PathVariable("nickname") String nickname,
                                                                 @RequestParam String data){
         try{
-            System.out.println("======================");
-            System.out.println("nickname = " + nickname);
-            System.out.println(" = " + data);
-            System.out.println("======================");
             List<SearchResultsDto> memberSearchResultDto = memberService.searchAllNickname(nickname,data);
             return ResponseEntity.ok().body(memberSearchResultDto);
         }catch (NoSuchElementException e){
@@ -119,8 +117,23 @@ public class MemberController {
     public ResponseEntity<MemberInfoDto> searchResultsMemberInfo(@PathVariable("nickname") String nickname){
         try{
             Member searchResultMember = memberRepository.findByNickname(nickname).orElseThrow(()-> new NoSuchElementException(nickname+"의 회원정보가 없습니다"));
-            MemberInfoDto memberSearchResultDto = memberRepository.searchMemberAllInfo(searchResultMember);
-            return ResponseEntity.ok().body(memberSearchResultDto);
+            System.out.println("searchResultMember = " + searchResultMember);
+            MemberInfoDto searchResultsMemberInfoDto = memberRepository.searchMemberAllInfo(searchResultMember);
+            return ResponseEntity.ok().body(searchResultsMemberInfoDto);
+        }catch (NoSuchElementException e){
+            System.out.println("e = " + e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+    }
+
+    @GetMapping("/searchResultsWithRedis/{nickname}")
+    public ResponseEntity<MemberInfoDto> searchResultsMemberInfoWithRedis(@PathVariable("nickname") String nickname){
+        try{
+            Member searchResultMember = memberRepository.findByNickname(nickname).orElseThrow(()-> new NoSuchElementException(nickname+"의 회원정보가 없습니다"));
+            MemberInfoDto searchResultsMemberInfoDto = redisService.findMemberInfoInRedis(nickname);
+            System.out.println("searchResultsMemberInfoDto = " + searchResultsMemberInfoDto);
+            return ResponseEntity.ok().body(searchResultsMemberInfoDto);
         }catch (NoSuchElementException e){
             System.out.println("e = " + e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

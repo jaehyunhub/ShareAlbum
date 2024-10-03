@@ -6,6 +6,7 @@ interface JwtToken {
   
   interface MyGroupInfo {
     id: number;
+    groupId:number;
     groupTitle: string;
     // other fields
   }

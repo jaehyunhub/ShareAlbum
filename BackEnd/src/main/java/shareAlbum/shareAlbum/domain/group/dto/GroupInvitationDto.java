@@ -1,9 +1,6 @@
 package shareAlbum.shareAlbum.domain.group.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import shareAlbum.shareAlbum.domain.group.entity.InvitationStatus;
 
 @NoArgsConstructor
@@ -17,4 +14,14 @@ public class GroupInvitationDto {
     private String inviterId;
     private String receiverId;
     private InvitationStatus invitationStatus;
+
+    @Builder
+    public GroupInvitationDto(Long invitationId, Long groupId, String groupTitle, String inviterId, String receiverId, InvitationStatus invitationStatus) {
+        this.invitationId = invitationId;
+        this.groupId = groupId;
+        this.groupTitle = groupTitle;
+        this.inviterId = inviterId;
+        this.receiverId = receiverId;
+        this.invitationStatus = invitationStatus;
+    }
 }

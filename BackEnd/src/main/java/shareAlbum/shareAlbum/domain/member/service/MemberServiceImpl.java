@@ -142,7 +142,7 @@ public class MemberServiceImpl implements MemberService {
                     .memberStatus(MemberStatus.ACTIVE)
                     .build();
             memberRepository.save(member);
-            groupService.createGroup(new GroupCreateDto(memberDto.getLoginId(), "Main",GroupCategory.DEFAULT));
+            groupService.createGroup(new GroupCreateDto(memberDto.getNickname(), "Main",GroupCategory.DEFAULT));
         } catch (Exception e) {
             System.out.println("e = " + e);
         }

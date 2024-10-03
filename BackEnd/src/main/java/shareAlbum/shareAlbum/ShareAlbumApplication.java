@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 @EnableJpaAuditing
-@PropertySource("classpath:application.yml")
+//@PropertySource("classpath:application.yml")
 @EnableFeignClients(basePackages = "shareAlbum.shareAlbum.domain.member.query.kakaoLogin")
 public class ShareAlbumApplication {
 

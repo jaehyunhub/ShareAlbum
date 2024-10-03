@@ -12,6 +12,7 @@ import {
 } from "react-icons/ai";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { HiOutlineBellAlert } from "react-icons/hi2";
+import { TbBook } from "react-icons/tb";
 
 import AddNewPostModal from "../Modal/AddNewPostModal";
 import AcceptGroupModal from "../Modal/AcceptGroupModal";
@@ -41,6 +42,8 @@ const Header = () => {
       axios.post(`http://localhost:8080/logout/${memberInfo?.nickname}`)
         .then(() => {
           dispatch({ type: 'LOGOUT' });
+          localStorage.clear();
+          sessionStorage.clear();
           router.push('/');
         })
         .catch((error) => {
@@ -65,7 +68,6 @@ const Header = () => {
             }
           );
           const searchResults = response.data;
-          console.log(searchResults)
           setSearchResults(searchResults);
         } catch (error) {
           console.log(error);
@@ -88,9 +90,12 @@ const Header = () => {
   return (
     <div className="fixed top-0 z-10 flex items-center justify-around w-full h-16 bg-white shadow-md">
       <div className="flex items-center space-x-40 md:justify-center">
-        <Link href="/">
+        <Link href={`/${memberInfo?.nickname}`}>
           <div className="text-xl font-semibold tracking-wider cursor-pointer select-none">
-            ShareAlbum
+            <div className="flex items-center">
+              <TbBook/>
+              ShareAlbum
+            </div>
           </div>
         </Link>
         <div className="relative flex items-center px-2 space-x-4 bg-gray-100 border border-gray-400 rounded-lg group group-focus:border-gray-400">

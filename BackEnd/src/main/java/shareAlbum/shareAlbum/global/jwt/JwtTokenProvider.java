@@ -25,17 +25,21 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtTokenProvider {
 
-    private final String secret ;
+    private final String secret;
     private final Key key;
-    private final long tokenValidityInMilliseconds;
+    private final long accessTokenValidityInMilliseconds;
+    private final long refreshTokenValidityInMilliseconds;
     private static final String AUTHORITIES_KEY = "auth";
 
 
     //빈을 생성하고 secret값과 시간 유효성 값을 의존성 주입을 받음
-    public JwtTokenProvider(@Value("${jwt.secret}") String secret,
-                            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInMilliseconds){
+    public JwtTokenProvider(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.accessToken-validity-in-seconds}") long accessTokenValidityInSeconds,
+            @Value("${jwt.refreshToken-validity-in-seconds}") long refreshTokenValidityInSeconds) {
         this.secret = secret;
-        this.tokenValidityInMilliseconds = tokenValidityInMilliseconds;
+        this.accessTokenValidityInMilliseconds = accessTokenValidityInSeconds * 1000;
+        this.refreshTokenValidityInMilliseconds = refreshTokenValidityInSeconds * 1000;
         byte[] keyBytes = Decoders.BASE64URL.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -49,17 +53,17 @@ public class JwtTokenProvider {
         long now = (new Date()).getTime();
 
         //Access Token 생성
-        Date accessTokenExpired = new Date(now + this.tokenValidityInMilliseconds);
+        Date accessTokenExpired = new Date(now + this.accessTokenValidityInMilliseconds);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim(AUTHORITIES_KEY,authorities)
+                .claim(AUTHORITIES_KEY, authorities)
                 .setExpiration(accessTokenExpired)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
         //Refresh Token 생성
         String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + 86400000))
+                .setExpiration(new Date(now + this.refreshTokenValidityInMilliseconds))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
@@ -117,8 +121,11 @@ public class JwtTokenProvider {
     }
 
 
+    public long getAccessTokenValidityInMilliseconds() {
+        return accessTokenValidityInMilliseconds;
+    }
 
-
-
-
+    public long getRefreshTokenValidityInMilliseconds() {
+        return refreshTokenValidityInMilliseconds;
+    }
 }

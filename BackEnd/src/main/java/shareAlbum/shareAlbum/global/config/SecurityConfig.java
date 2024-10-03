@@ -47,9 +47,11 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers("/createGroup","/inviteGroup").permitAll()
                 .antMatchers("/acceptGroupInvitation","/rejectGroupInvitation").permitAll()
+                .antMatchers("/app/images/**").permitAll()
                 .antMatchers("/images/**").permitAll()
                 .antMatchers("/uploadAlbum").permitAll()
-                .antMatchers("/searchResults/**").permitAll()
+                .antMatchers("/searchResults/**","/searchResultsWithRedis/**").permitAll()
+                .antMatchers("/redis/**").permitAll()
                 // 이 밖에 모든 요청에 대해서 인증을 필요로 한다는 설정
                 .anyRequest().authenticated()
                 .and()
@@ -83,7 +85,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("classpath:/static/images/");
+                .addResourceLocations("file:/app/images/");
     }
 
 

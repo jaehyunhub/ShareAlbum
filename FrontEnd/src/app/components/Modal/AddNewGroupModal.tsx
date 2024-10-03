@@ -4,15 +4,15 @@ import axios from "axios";
 import { useAuthState } from "@/app/context/\bAuthContext";
 import { useRouter } from "next/navigation";
 import { useSWRConfig } from "swr";
+import { sourceMapsEnabled } from "process";
 
 const AddNewGroupModal = (props: any) => {
-  const { clickModal } = props;
+  const { clickModal, onGroupAdded } = props; // onGroupAdded 콜백 추가
   const [groupTitle, setGroupTitle] = useState("");
   const [groupCategory, setGroupCategory] = useState("FAMILY");
   const { user: memberInfo } = useAuthState();
   const modalRef = useRef<HTMLDivElement>(null);
   const { mutate } = useSWRConfig();
-  let router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -27,11 +27,12 @@ const AddNewGroupModal = (props: any) => {
       const response = await axios.post("http://localhost:8080/createGroup", {
         groupTitle,
         groupCategory: groupCategory.toUpperCase(),
-        loginId: memberInfo.loginId
+        nickname: memberInfo.nickname
       });
+      const newGroup = groupTitle
       clickModal(); // 모달 닫기
-      await mutate(`http://localhost:8080/redis/${memberInfo.nickname}`);
-      router.push(`/${memberInfo.nickname}`)
+      window.location.reload();
+
     } catch (error) {
       console.error("그룹 추가 중 오류 발생:", error);
     }

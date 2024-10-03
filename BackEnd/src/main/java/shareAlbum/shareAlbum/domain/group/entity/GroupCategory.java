@@ -1,5 +1,5 @@
 package shareAlbum.shareAlbum.domain.group.entity;
 
 public enum GroupCategory {
-    FAMILY,COMPANY,FRIEND
+    FAMILY,COMPANY,FRIEND,DEFAULT
 }

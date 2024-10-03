@@ -9,12 +9,14 @@ import Head from "next/head";
 import ImageButton from "@/app/components/Button/ImageButton";
 import { MemberInfo } from "@/app/interfaces/MemberInfo";
 import { useAuthDispatch } from "@/app/context/\bAuthContext";
+import { useSWRConfig } from "swr";
 
 const Login = () => {
   let router = useRouter();
   const dispatch = useAuthDispatch();
   const [loginId, setloginId] = useState<string>("");
   const [password, setPassword] = useState("");
+
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();

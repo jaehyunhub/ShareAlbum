@@ -21,10 +21,6 @@ public class RedisController {
     public ResponseEntity<MemberInfoDto> auth(@PathVariable("nickname") String nickname){
         try{
             MemberInfoDto memberInfoDto = redisService.findMemberInfoInRedis(nickname);
-            System.out.println("========변경된 redisNickname=======");
-            System.out.println("memberInfoDto.toString() = " + memberInfoDto.toString());
-            System.out.println("=====================");
-
             return ResponseEntity.ok(memberInfoDto);
         }catch(Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

@@ -9,7 +9,6 @@ import java.util.Optional;
 public interface MemberReposiotryCustom {
     //로그인 후 멤버 정보전체 조회
     MemberInfoDto searchMemberAllInfo(Member member);
-
     Optional<List<Member>> findAllMembersByNickName(String nickname);
 
 }

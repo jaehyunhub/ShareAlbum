@@ -6,7 +6,7 @@ import axios from "axios";
 
 const AddNewPostModal = (props: any) => {
   // 전달받은 state 함수
-  const { clickModal } = props;
+  const { clickModal,onUploadComplete } = props;
   const { user: memberInfo } = useAuthState();
   const modalRef = useRef<HTMLDivElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -19,14 +19,6 @@ const AddNewPostModal = (props: any) => {
   const handleGroupChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const selectedGroupId = Number(event.target.value);
     setGroupId(selectedGroupId);
-    // const selectedGroup = memberInfo?.myGroupList.find(
-    //   (group) => group.groupTitle === selectedGroupTitle
-    // );
-    // if (selectedGroup) {
-    //   setGroupId(selectedGroup.id);
-    //   console.log("-------------")
-    //   console.log(groupId);
-    // }
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,11 +51,15 @@ const AddNewPostModal = (props: any) => {
       return;
     }
 
+    console.log("=============")
+    console.log(groupId.toString());
+    console.log("=============")
+
     const formData = new FormData();    
     formData.append("image", image);
     formData.append("content", content);
     formData.append("groupId", groupId.toString());
-    formData.append("loginId", memberInfo.loginId);
+    formData.append("nickname", memberInfo.nickname);
 
     try {
       const res = await axios.post(
@@ -77,6 +73,11 @@ const AddNewPostModal = (props: any) => {
       );
       console.log("업로드 되었습니당", res.data);
       clickModal(); // 업로드 후 모달 닫기
+       // 앨범 업로드가 성공적으로 완료된 경우, 콜백 함수 호출하여 상위 컴포넌트에 알림
+       if (onUploadComplete) {
+        onUploadComplete(groupId); // 앨범 추가 후 선택된 그룹 ID 전달
+      }
+      window.location.reload();
     } catch (error) {
       console.error("사진 업로드 중 에러 발생", error);
     }
@@ -158,7 +159,7 @@ const AddNewPostModal = (props: any) => {
                 >
                   <option value="groupCategory">그룹을 선택하세요</option>
                   {memberInfo?.myGroupList.map((group) => (
-                    <option key={group.id} value={group.id}>
+                    <option key={group.groupId} value={group.groupId}>
                       {group.groupTitle}
                     </option>
                   ))}

@@ -56,10 +56,6 @@ const fetcher = (url: string) =>
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const { data: user, error } = useSWR(
-    state.authenticated ? `http://localhost:8080/redis/${state.user?.nickname}` : null, fetcher  // fetcher를 적절하게 호출
-  );
-
   useEffect(() => {
     const savedNickname = localStorage.getItem('nickname');
 

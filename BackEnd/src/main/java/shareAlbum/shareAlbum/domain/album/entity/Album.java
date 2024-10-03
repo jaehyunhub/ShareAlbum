@@ -13,6 +13,8 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static javax.persistence.FetchType.LAZY;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,7 +33,7 @@ public class Album extends BaseEntity {
 //    @Enumerated(EnumType.STRING)
 //    private AlbumStatus albumStatus;
 
-    @OneToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "groupList_id")
     private GroupList groupList;
 

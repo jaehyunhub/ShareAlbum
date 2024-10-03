@@ -41,6 +41,7 @@ public class GroupController {
     @PostMapping("/inviteGroup")
     public ResponseEntity<?> inviteGroup(@RequestBody GroupInvitationDto groupInvitationDto) {
         try{
+            System.out.println("groupInvitationDto = " + groupInvitationDto);
             groupService.inviteGroup(groupInvitationDto);
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
         }catch(NoSuchElementException e){

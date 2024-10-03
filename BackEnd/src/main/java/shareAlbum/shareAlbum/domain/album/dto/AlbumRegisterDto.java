@@ -11,8 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 public class AlbumRegisterDto {
     private String content;
-    private String loginId;
-    //private String createby;
+    private String nickname;
     private MultipartFile image;
     private Long groupId;
 

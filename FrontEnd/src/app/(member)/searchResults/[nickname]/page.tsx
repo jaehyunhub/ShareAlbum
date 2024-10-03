@@ -23,7 +23,8 @@ const ProfilePage: React.FC = () => {
       if (nickname) {
         try {
           const response = await axios.get<SearchResultsMemberInfo>(`http://localhost:8080/searchResults/${nickname}`);
-          setSearchResultsMemberInfo(response.data);
+          const searchResultsMemberInfo : SearchResultsMemberInfo = response.data;
+          setSearchResultsMemberInfo(searchResultsMemberInfo);
         } catch (error) {
           console.log(error);
         }
@@ -46,7 +47,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const renderGridItems = () => {
-    const albumGroupId = searchResultsMemberInfo.myGroupList.find(group => group.groupTitle === activeTab)?.id;
+    const albumGroupId = searchResultsMemberInfo.myGroupList.find(group => group.groupTitle === activeTab)?.groupId;
     if (albumGroupId !== undefined && searchResultsMemberInfo.myAlbum[albumGroupId]) {
       return searchResultsMemberInfo.myAlbum[albumGroupId].map((album) => (
         <div key={album.id} className="w-full h-72 bg-gray-300 flex items-center justify-center">
@@ -75,7 +76,8 @@ const ProfilePage: React.FC = () => {
         <div className="flex w-full items-center p-4">
           <div className="w-1/3 flex flex-col items-center justify-center">
             <div className="w-32 h-32 bg-gray-200 rounded-full mb-4 flex items-center justify-center">
-              <img src="/path/to/profile-pic.jpg" alt="프로필" className="w-full h-full rounded-full object-cover" />
+              <img 
+                src="/images/profile2.webp" alt="프로필" className="w-full h-full rounded-full object-cover" />
             </div>
           </div>
           <div className="w-2/3 pl-4 flex flex-col justify-center">
@@ -90,7 +92,7 @@ const ProfilePage: React.FC = () => {
                 </button>
               )}
             </div>
-            <div className="text-black mt-2">게시물 455 팔로워 1730만 팔로우 0</div>
+            <div className="text-black mt-2">팔로워 0만 팔로우 0</div>
             <div className="text-black mt-2">{searchResultsMemberInfo.name}</div>
           </div>
         </div>
@@ -118,7 +120,7 @@ const ProfilePage: React.FC = () => {
 
       {/* 초대 모달 */}
       {showInviteModal && 
-      <InviteGroupModal receiverId={searchResultsMemberInfo.nickname} clickModal={clickModal} />}
+      <InviteGroupModal searchResultsMemberInfo={searchResultsMemberInfo} clickModal={clickModal} />}
     </div>
   );
 };

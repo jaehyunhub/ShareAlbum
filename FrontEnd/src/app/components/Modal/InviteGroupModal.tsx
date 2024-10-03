@@ -15,9 +15,9 @@ const InviteGroupModal: React.FC<InviteGroupModalProps> = ({ clickModal, searchR
   const { user: memberInfo } = useAuthState();
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // 중복 그룹 필터링
+ // 중복 그룹 필터링
   const availableGroups = memberInfo?.myGroupList.filter(
-    group => group.groupTitle !== "Main" && 
+    group => group.groupTitle !== "Main" &&
     !searchResultsMemberInfo.myGroupList.some(searchGroup => searchGroup.id === group.id)
   );
 
@@ -74,7 +74,7 @@ const InviteGroupModal: React.FC<InviteGroupModalProps> = ({ clickModal, searchR
               >
                 <option value="">그룹을 선택하세요</option>
                 {availableGroups?.map((group) => (
-                  <option key={group.id} value={group.id}>
+                  <option key={group.groupId} value={group.groupId}>
                     {group.groupTitle}
                   </option>
                 ))}
