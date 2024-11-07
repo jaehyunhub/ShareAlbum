@@ -32,7 +32,7 @@
 **Backend**
 - **Language** : Java 
 - **Library & Framework** : Spring Boot
-- **Database** : PostgrelSql
+- **Database** : PostgreSql
 - **ORM** : JPA
 - **Deploy**: Redis(Cache),Docker
 - **Tool**: IntellJ,VSCode,Postman,JMeter
