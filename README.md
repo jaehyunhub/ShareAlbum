@@ -30,7 +30,7 @@
 <br/>
 
 **Backend**
-- **Language** : Java 
+- **Language** : Java 11 
 - **Library & Framework** : Spring Boot
 - **Database** : PostgreSql
 - **ORM** : JPA
